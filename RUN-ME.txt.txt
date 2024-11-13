@@ -1,0 +1,98 @@
+-- Database for EcoTrack
+-- Author: K00288477 Gary O'Connor
+-- Date Created: 2024-11-11
+
+
+-- THIS VERSION DOES NOT CONTAIN ALL KEY CONSTRAINTS
+-- You will need to edit the db entities when creating a new function
+
+-- Please run this statement on the database after you have ran this script
+-- GRANT ALL PRIVILEGES ON ecotrack.* TO ''@'%';
+
+
+CREATE DATABASE IF NOT EXISTS ecotrack;
+USE ecotrack;
+
+-- Users Table 
+CREATE TABLE IF NOT EXISTS oauth_users(
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50),
+    email varchar(50),
+    password VARCHAR(50),
+    f_name VARCHAR(50),
+    l_name VARCHAR(50),
+    city VARCHAR(50),
+    country VARCHAR(50),
+    rank INT DEFAULT = 0,                           -- used to populate the leaderboard, rank may be removed in later versions and instead be caculated on the backend rather than stored in the database
+    wasteLogScore DECIMAL(5, 2) DEFAULT = 0.00,        -- used to populate user reports, will also determine rank
+    date_created DATE NOT NULL DEFAULT current_timestamp
+);
+
+INSERT INTO oauth_users(username, email, password, f_name, l_name, city, country)
+VALUES('testUser99', 'test@test.com', 'password', 'test', 'test', 'Limerick', 'Ireland');
+
+-- Admins Table, (Highest authority level) may be removed for simplicity
+CREATE TABLE IF NOT EXISTS admin(
+    admin_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50),
+    password VARCHAR(50),
+    f_name VARCHAR(50),
+    l_name VARCHAR(50)
+);
+
+-- Organisations Table 
+CREATE TABLE IF NOT EXISTS organisations(
+    org_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50),
+    password VARCHAR(50),
+    org_name VARCHAR(50),
+    city VARCHAR(50),
+    country VARCHAR(50),
+    rank INT,                           -- used to populate the leaderboard, rank may be removed in later versions and instead be caculated on the backend rather than stored in the database
+    wasteLogScore DECIMAL(5, 2)         -- used to populate user reports, will also determine rank
+);
+
+-- Waste event Table
+CREATE TABLE IF NOT EXISTS waste_event(
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    event_description VARCHAR(100),
+    category ENUM('Paper', 'Plastic', 'Organic', 'General Waste', 'Other'),
+    date_logged DATE,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Badges Table
+CREATE TABLE IF NOT EXISTS badges(
+    badge_id INT PRIMARY KEY AUTO_INCREMENT,
+    img_filepath VARCHAR(50),
+    alt_text VARCHAR(50)
+);
+
+-- UserHasBadges table
+CREATE TABLE IF NOT EXISTS UserHasBadges(
+    user_id INT,
+    badge_id INT,
+    PRIMARY KEY (user_id, badge_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (badge_id) REFERENCES badges(badge_id)
+);
+
+-- STORED PROCEDURES
+
+-- login functionality
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `loginValidation`(IN `p_email` VARCHAR(50), IN `p_password` VARCHAR(50), OUT `p_user_id` INT)
+BEGIN
+
+SELECT u.user_id INTO p_user_id
+
+FROM oauth_users u
+
+WHERE u.email = p_email AND u.password = p_password
+
+
+
+;END$$
+DELIMITER ;
+
