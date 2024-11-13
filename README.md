@@ -30,9 +30,18 @@ Follow these steps to configure XAMPP for CI4-EcoTrack:
 ## Composer Setup
 
 Follow these steps to ensure Composer is installed and to set up the project:
+
 1. Check if Composer is installed by running:
 composer -v
 2. Navigate to the project directory:
 cd C:\xampp\htdocs\CI4-EcoTrack
 3. Install the project dependencies:
 composer install
+
+
+## SOPHIE
+
+Files to look at 
+- Routes.php
+- Filters\CorsFilter
+- Config\Filters.php
